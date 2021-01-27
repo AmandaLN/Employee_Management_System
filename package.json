@@ -1,5 +1,5 @@
 {
-  "name": "Employee_Management_System",
+  "name": "employee_management_system",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/AmandaLN/Employee_Management_System#readme",
   "dependencies": {
+    "asciiart-logo": "^0.2.6",
+    "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
+    "logo": "^0.2.0",
     "mysql": "^2.18.1"
   }
 }

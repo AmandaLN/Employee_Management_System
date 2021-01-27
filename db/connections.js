@@ -8,6 +8,8 @@ const connection = mysql.createConnection({
     database : 'employees'
   });
 
-  connection.connect()
+  connection.connect();
 
-  connection.query = util.promisify(connection.query, console.log("connected"))
+  connection.query = util.promisify(connection.query, console.log("connected"));
+
+  module.export = connection;
