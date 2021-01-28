@@ -1,53 +1,42 @@
 const inquirer = require('inquirer');
 const logo = require('asciiart-logo');
-// const db = require('./db')
+// const { start } = require('repl');
+// const db = require('./db');
+// const connection = require('./db/connection');
 require("console.table");
+
+const util = require('util');
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : 'rootroot',
+    database : 'employees'
+  });
+
+  connection.connect();
+
+  connection.query = util.promisify(connection.query, console.log("connected"));
 
 
 function init() {
     const logoText = logo ({ name: "Employee Management System"}).render();
     console.log(logoText);
-    start();
+    options();
 }
-  function start() {
+  function options() {
     inquirer
       .prompt({
         name: "choice",
         type: "list",
         message: "What would you like to do?",
-        choices: [
-            {
-                name: "View All Employees",
-                value: "VIEW_EMPLOYEES"
-            },
-            {
-                name: "View All Roles",
-                value: "VIEW_ROLE"
-            },
-            {
-                name: "View all Departments",
-                value: "VIEW_DEPARTMENTS"
-            },
-            {
-                name: "Add Department",
-                value: "ADD_DEPARTMENTS"
-            },
-            {
-                name: "Add Employee",
-                value: "ADD_EMPLOYEE"
-            },
-            {
-                name: "Add Role",
-                value: "ADD_ROLE"
-            },
-            {
-                name: "Update Employee",
-                value: "UPDATE_EMPLOYEE"
-            },
-        ]
+        choices: ['View all Employees', 'View all Roles', 'View all Departments', 'Add New Employee', 'Add New Role', 'Add New Department', 'Update Employee', 'Exit']
+        
       })
+
       .then(function(answer) {
-        switch (answer.item) {
+        switch (answer.choice) {
             case 'View all Employees':
                 return viewAllEmployees();
             case 'View all Roles':
@@ -55,7 +44,7 @@ function init() {
             case 'Add New Employee':
                 return addNewEmployee();
             case 'View all Departments':
-                return viewAllDepartment();
+                return viewAllDepartments();
             case 'Add New Role':
                 return addNewRole();
             case 'Add New Department':
@@ -83,7 +72,7 @@ function viewAllRoles(){
 })
 };
 
-function viewAllDepartment(){
+function viewAllDepartments(){
     connection.query("SELECT department.id, department.name FROM department ORDER by department.id", function(err, res){
         if(err) throw err;
         console.table(res);
