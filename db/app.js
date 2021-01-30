@@ -32,7 +32,7 @@ options = () => {
             name: "choice",
             type: "list",
             message: "What would you like to do?",
-            choices: ['View all Employees', 'View all Roles', 'View all Departments', 'Add New Employee', 'Add New Role', 'Add New Department', 'Update Employee', 'Exit']
+            choices: ['View all Employees', 'View all Roles', 'View all Departments', 'Add New Employee', 'Add New Role', 'Add New Department', 'Update Role', 'Exit']
 
         })
         //   answers to choose the next function
@@ -50,8 +50,8 @@ options = () => {
                     return addNewRole();
                 case 'Add New Department':
                     return addNewDepartment();
-                case 'Update Employee':
-                    return updateEmployee();
+                case 'Update Role':
+                    return updateRole();
                 case 'EXIT':
                     return connection.end();
             }
@@ -109,12 +109,18 @@ addNewEmployee = () => {
         ])
         //   inserting into employee table
         .then(answer => {
+            // console.log(answer);
+
+            // Save the required fields your instrested in 
+            // let employeeeId = answer.id
+
+            // make a second Inquirer.prompt([QUESTION SET]).then(data => { connection.query("SQL UPDATE SYNTAX") })
             connection.query("INSERT INTO employee SET ?",
                 {
-                    first_name: answer.first_name,
-                    last_name: answer.last_name,
-                    role_id: answer.role_id,
-                    manager_id: answer.manager_id
+                    first_name: answer.first,
+                    last_name: answer.last,
+                    role_id: answer.role,
+                    manager_id: answer.manId
                 }, function (err) {
                     if (err) throw err;
                     console.log("Added Successfully");
@@ -122,6 +128,8 @@ addNewEmployee = () => {
                 }
             )
         })
+
+        // Second Inquirer Function call
 };
 
 addNewRole = () => {
@@ -150,7 +158,7 @@ addNewRole = () => {
                 {
                     title: answer.title,
                     salary: answer.salary,
-                    department_id: answer.department_id,
+                    department_id: answer.department,
 
                 }, function (err) {
                     if (err) throw err;
@@ -193,40 +201,74 @@ addNewDepartment = () => {
         })
 }
 
-updateEmployee = () => {
+updateRole = () => {
+    // viewAllEmployees();
+    connection.query("SELECT * FROM role",   function (err, results) {
+        if (err) throw err;
+        
+    
     inquirer
         .prompt([
             {
-                name: "id",
+                name: "upemployee",
                 type: "input",
-                message: "What is the department ID",
-            },
-            {
-                name: "name",
-                type: "input",
-                message: "What is the department name",
+                message: "What is the first name of the employee?",
+                // choices: 
+                // function() {
+                //     var choiceArray = [];
+                //     for (var i = 0; i < results.length; i++) {
+                //       choiceArray.push(viewAllEmployees());
+                //     }
+                //     return choiceArray[0];
+                //   }
 
             },
+            {
+                name: "upemployeelast",
+                type: "input",
+                message: "What is the last name of the employee?",
+            },
+            {
+                name: "uprole",
+                type: "list",
+                message: "What is the new role for selected employee?",
+                choices: function() {
+                    var choiceArray = [];
+                    for (var i = 0; i < results.length; i++) {
+                      choiceArray.push(results[i].title);
+                    }
+                    return choiceArray;
+                  }
+
+            },
+
         ])
 
         .then(answer => {
-            connection.query("INSERT INTO department SET ?",
-                {
-                    id: answer.id,
-                    name: answer.name,
-                    
-
-                }, function (err) {
-                    if (err) throw err;
-                    console.log("Added Successfully");
-                    options()
+            var chosenRole;
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].title === answer.uprole) {
+                    chosenRole = results[i].id;
                 }
+            }
+
+            connection.query("UPDATE employee SET role_id = (?) WHERE first_name = ? AND last_name = (?)",
+            [
+                chosenRole,
+                answer.upemployee,
+                answer.upemployeelast
+            ], function(err){
+                if(err) throw err;
+                console.log("Updated role successful");
+                console.table(answer);
+                options();
+            }
             )
         })
+
+    });
+
 }
-
-
-
 
 
 init()
